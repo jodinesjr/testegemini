@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raspagem de Perfil do LinkedIn</title>
+    <title>Eita de Perfil do LinkedIn</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
@@ -73,8 +73,153 @@
             return data ? data.textContent.trim() : null;
         }
 
-        // ... (Funções extractExperience, extractEducation, etc.)
-        // ... (Função displayData)
+        function extractExperience(html) {
+            const element = document.createElement('div');
+            element.innerHTML = html;
+            const experiences = element.querySelectorAll('.pv-profile-section__card-item');
+            return Array.from(experiences).map(experience => ({
+                cargo: experience.querySelector('.pv-entity__title').textContent.trim(),
+                empresa: experience.querySelector('.pv-entity__secondary-title').textContent.trim(),
+                periodo: experience.querySelector('.pv-entity__date-range').textContent.trim(),
+                descricao: experience.querySelector('.pv-entity__description').textContent.trim()
+            }));
+        }
+
+        function extractEducation(html) {
+            const element = document.createElement('div');
+            element.innerHTML = html;
+            const educations = element.querySelectorAll('.pv-profile-section__card-item');
+            return Array.from(educations).map(education => ({
+                nome: education.querySelector('.pv-entity__title').textContent.trim(),
+                grau: education.querySelector('.pv-entity__degree-name').textContent.trim(),
+                periodo: education.querySelector('.pv-entity__date-range').textContent.trim(),
+                descricao: education.querySelector('.pv-entity__description').textContent.trim()
+            }));
+        }
+
+        function extractSkills(html) {
+            const element = document.createElement('div');
+            element.innerHTML = html;
+            const skills = element.querySelectorAll('.pv-skill-category-entity__name');
+            return Array.from(skills).map(skill => skill.textContent.trim());
+        }
+
+        function extractRecommendations(html) {
+            const element = document.createElement('div');
+            element.innerHTML = html;
+            const recommendations = element.querySelectorAll('.recommendation-card');
+            return Array.from(recommendations).map(recommendation => ({
+                autor: recommendation.querySelector('.recommendation-card__author').textContent.trim(),
+                titulo: recommendation.querySelector('.recommendation-card__title').textContent.trim(),
+                descricao: recommendation.querySelector('.recommendation-card__content').textContent.trim()
+            }));
+        }
+
+        function extractAvatar(html) {
+            const element = document.createElement('div');
+            element.innerHTML = html;
+            const avatar = element.querySelector('.pv-top-card-section__photo img');
+            return avatar ? avatar.src : null;
+        }
+
+        function extractCover(html) {
+            const element = document.createElement('div');
+            element.innerHTML = html;
+            const cover = element.querySelector('.pv-top-card-section__cover-image');
+            return cover ? cover.style.backgroundImage.replace(/url\(['"](.+)['"]\)/, '$1') : null;
+        }
+
+        function displayData(perfil) {
+            resultados.innerHTML = `
+                <div class="row">
+                    <div class="col-md-4">
+                        <img src="${perfil.avatar}" class="img-fluid rounded-circle" alt="${perfil.nome}" style="max-width: 200px; max-height: 200px;">
+                    </div>
+                    <div class="col-md-8">
+                        <h2 class="mb-3">${perfil.nome}</h2>
+                        <p class="mb-2">${perfil.titulo}</p>
+                        <p class="mb-2">${perfil.localizacao}</p>
+                        <p class="mb-2">${perfil.resumo}</p>
+                    </div>
+                </div>
+
+                ${perfil.experiencia.length > 0 ?
+                    `<div class="mt-5">
+                        <h3>Experiência</h3>
+                        <div class="row">
+                            ${perfil.experiencia.map(experiencia => `
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">${experiencia.cargo}</h5>
+                                            <h6 class="card-subtitle mb-2 text-muted">${experiencia.empresa}</h6>
+                                            <p class="card-text">${experiencia.periodo}</p>
+                                            <p class="card-text">${experiencia.descricao}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>`
+                    : ''}
+
+                ${perfil.educacao.length > 0 ?
+                    `<div class="mt-5">
+                        <h3>Educação</h3>
+                        <div class="row">
+                            ${perfil.educacao.map(educacao => `
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">${educacao.nome}</h5>
+                                            <h6 class="card-subtitle mb-2 text-muted">${educacao.grau}</h6>
+                                            <p class="card-text">${educacao.periodo}</p>
+                                            <p class="card-text">${educacao.descricao}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>`
+                    : ''}
+
+                ${perfil.habilidades.length > 0 ?
+                    `<div class="mt-5">
+                        <h3>Habilidades</h3>
+                        <div class="row">
+                            ${perfil.habilidades.map(habilidade => `
+                                <div class="col-md-4 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">${habilidade}</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>`
+                    : ''}
+
+                ${perfil.recomendacoes.length > 0 ?
+                    `<div class="mt-5">
+                        <h3>Recomendações</h3>
+                        <div class="row">
+                            ${perfil.recomendacoes.map(recomendacao => `
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">${recomendacao.autor}</h5>
+                                            <h6 class="card-subtitle mb-2 text-muted">${recomendacao.titulo}</h6>
+                                            <p class="card-text">${recomendacao.descricao}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>`
+                    : ''}
+            `;
+        }
     </script>
 </body>
 </html>

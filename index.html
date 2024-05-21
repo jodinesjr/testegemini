@@ -22,7 +22,7 @@
             // e processar a resposta para exibir os resultados na div 'result'.
             // Lembre-se de usar sua chave de API no lugar da chave fictícia abaixo.
             const apiKey = 'AIzaSyAHyTznCIemhhJzRbR0d0IlSTkCE7w7Pm8';
-            const response = await fetch(`https://api.gemini.google.dev/v1/analyze?linkedinUrl=${linkedinUrl}&key=${apiKey}`);
+            const response = "Quem é você?"
             const data = await response.json();
             document.getElementById('result').innerText = data.analysis;
         }

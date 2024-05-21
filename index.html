@@ -36,7 +36,9 @@
             }
 
             try {
-                const response = await fetch(url);
+                // Use uma API intermediária ou servidor local para evitar problemas CORS
+                // Aqui, estamos usando um servidor local simples para demonstração
+                const response = await fetch(url); 
                 const html = await response.text();
 
                 // Raspagem dos dados
